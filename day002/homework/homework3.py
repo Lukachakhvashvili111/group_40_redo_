@@ -1,0 +1,1 @@
+# True or True and False or True and False გამოგვიტანს შედეგად True-ს 

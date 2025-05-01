@@ -1,0 +1,5 @@
+name = input('Enter your name: ')
+age = int(input('Enter your age: '))
+height = input('Enter your height: ')
+surname = input('Enter your surname: ')
+print('My name is ' + name + ' ' + surname + '. I am ' + str(age) + ' years old.')
