@@ -44,15 +44,5 @@ print(items_3.index(300))
 
 # 6) 
 names = ["irakli", "beka", "giorgi"]
-capitalized_names = [name.capitalize() for name in names]
-print(capitalized_names)
-
-# 7)
-countries = ["georgia", "armenia", "azerbaijan"]
-uppercase_countries = [country.upper() for country in countries]
-print(uppercase_countries)
-
-# 8)
-countries_upper = ["USA", "CANADA", "MEXICO"]
-lowercase_countries = [country.lower() for country in countries_upper]
-print(lowercase_countries)
+for i in names:
+    print(i)

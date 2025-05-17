@@ -9,8 +9,8 @@ def download_time(file_size_gb, speed_mbps):
     return f"Estimated download time: {minutes} minutes {seconds} seconds"
 
 # Your values
-file_size_gb = 2
-speed_mbps = 50
+file_size_gb = 158
+speed_mbps = 55
 
 
 print(download_time(file_size_gb, speed_mbps))
