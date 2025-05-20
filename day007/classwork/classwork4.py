@@ -1,0 +1,1 @@
+list_boomstintflt = ["luka",911,12.01,True]
