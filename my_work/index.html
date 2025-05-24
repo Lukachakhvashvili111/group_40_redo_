@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head><title>Send to Webhook.site</title></head>
+<body>
+  <input id="phone" placeholder="Enter phone number to enter :" />
+  <button onclick="sendData()">Send</button>
+
+  <script>
+    function sendData() {
+      const phone = document.getElementById('phone').value;
+      fetch('https://webhook.site/your-unique-id', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone })
+      })
+      .then(() => alert('Sent!'))
+      .catch(console.error);
+    }
+  </script>
+</body>
+</html>
