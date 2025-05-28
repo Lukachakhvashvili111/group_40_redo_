@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Dream Cars Showroom</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        /* Reset and base styles */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: #181d27;
+            color: #fff;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        header {
+            background: rgba(24,29,39,0.95);
+            padding: 20px 40px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+        .logo {
+            font-size: 2rem;
+            font-weight: bold;
+            letter-spacing: 2px;
+            color: #ffb400;
+        }
+        nav a {
+            color: #fff;
+            text-decoration: none;
+            margin: 0 18px;
+            font-size: 1.1rem;
+            transition: color 0.2s;
+        }
+        nav a:hover {
+            color: #ffb400;
+        }
+        .cart-btn {
+            background: #ffb400;
+            border: none;
+            color: #181d27;
+            padding: 10px 22px;
+            border-radius: 25px;
+            font-size: 1rem;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.2s;
+            position: relative;
+        }
+        .cart-count {
+            background: #e74c3c;
+            color: #fff;
+            border-radius: 50%;
+            font-size: 0.9rem;
+            padding: 2px 7px;
+            position: absolute;
+            top: -8px;
+            right: -10px;
+        }
+        main {
+            padding: 40px 5vw 60px 5vw;
+            min-height: 80vh;
+            position: relative;
+            z-index: 1;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5rem;
+            color: #ffb400;
+            letter-spacing: 1px;
+        }
+        .cars-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 32px;
+        }
+        .car-card {
+            background: rgba(34,39,51,0.98);
+            border-radius: 18px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.18);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.18s;
+            position: relative;
+        }
+        .car-card:hover {
+            transform: translateY(-6px) scale(1.025);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.22);
+        }
+        .car-img {
+            width: 100%;
+            height: 210px;
+            object-fit: cover;
+            background: #222;
+        }
+        .car-info {
+            padding: 20px 18px 16px 18px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .car-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #ffb400;
+        }
+        .car-desc {
+            font-size: 1rem;
+            color: #c7c7c7;
+            margin-bottom: 14px;
+        }
+        .car-price {
+            font-size: 1.15rem;
+            font-weight: bold;
+            color: #fff;
+            margin-bottom: 10px;
+        }
+        .add-cart-btn {
+            background: #ffb400;
+            color: #181d27;
+            border: none;
+            border-radius: 20px;
+            padding: 10px 0;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .add-cart-btn:hover {
+            background: #ffd966;
+        }
+        /* Cart Modal */
+        .modal-bg {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(24,29,39,0.85);
+            z-index: 100;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-bg.active {
+            display: flex;
+        }
+        .cart-modal, .payment-modal {
+            background: #23283a;
+            border-radius: 18px;
+            padding: 32px 28px 24px 28px;
+            min-width: 340px;
+            max-width: 95vw;
+            box-shadow: 0 8px 40px rgba(0,0,0,0.25);
+            position: relative;
+            color: #fff;
+            animation: popIn 0.25s;
+        }
+        @keyframes popIn {
+            from { transform: scale(0.85); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+        .modal-close {
+            position: absolute;
+            top: 18px;
+            right: 22px;
+            background: none;
+            border: none;
+            color: #ffb400;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+        .cart-title {
+            font-size: 1.4rem;
+            font-weight: bold;
+            margin-bottom: 18px;
+            color: #ffb400;
+        }
+        .cart-items {
+            max-height: 260px;
+            overflow-y: auto;
+            margin-bottom: 18px;
+        }
+        .cart-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 14px;
+            border-bottom: 1px solid #333;
+            padding-bottom: 10px;
+        }
+        .cart-item:last-child {
+            border-bottom: none;
+        }
+        .cart-item-img {
+            width: 60px;
+            height: 40px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-right: 14px;
+        }
+        .cart-item-info {
+            flex: 1;
+        }
+        .cart-item-title {
+            font-size: 1.05rem;
+            font-weight: 500;
+            color: #ffb400;
+        }
+        .cart-item-price {
+            font-size: 0.98rem;
+            color: #fff;
+        }
+        .cart-item-qty {
+            display: flex;
+            align-items: center;
+            margin-top: 4px;
+        }
+        .qty-btn {
+            background: #ffb400;
+            border: none;
+            color: #181d27;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            margin: 0 6px;
+        }
+        .remove-item-btn {
+            background: none;
+            border: none;
+            color: #e74c3c;
+            font-size: 1.2rem;
+            margin-left: 10px;
+            cursor: pointer;
+        }
+        .cart-total {
+            font-size: 1.15rem;
+            font-weight: bold;
+            margin-bottom: 18px;
+            text-align: right;
+        }
+        .checkout-btn {
+            background: #ffb400;
+            color: #181d27;
+            border: none;
+            border-radius: 20px;
+            padding: 12px 0;
+            font-size: 1.1rem;
+            font-weight: bold;
+            width: 100%;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .checkout-btn:hover {
+            background: #ffd966;
+        }
+        /* Payment Modal */
+        .payment-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin-bottom: 18px;
+            color: #ffb400;
+        }
+        .payment-form label {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 1rem;
+        }
+        .payment-form input {
+            width: 100%;
+            padding: 9px 10px;
+            margin-bottom: 14px;
+            border-radius: 8px;
+            border: 1px solid #444;
+            background: #23283a;
+            color: #fff;
+            font-size: 1rem;
+        }
+        .pay-btn {
+            background: #ffb400;
+            color: #181d27;
+            border: none;
+            border-radius: 20px;
+            padding: 12px 0;
+            font-size: 1.1rem;
+            font-weight: bold;
+            width: 100%;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .pay-btn:hover {
+            background: #ffd966;
+        }
+        .payment-success {
+            text-align: center;
+            color: #2ecc71;
+            font-size: 1.2rem;
+            margin-top: 18px;
+        }
+        /* Moving background animation */
+        .bg-anim {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            z-index: 0;
+            pointer-events: none;
+            overflow: hidden;
+        }
+        .bg-shape {
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.18;
+            filter: blur(2px);
+            animation: moveBg 24s linear infinite;
+        }
+        .bg-shape1 { width: 420px; height: 420px; background: #ffb400; left: -120px; top: 80px; animation-delay: 0s;}
+        .bg-shape2 { width: 320px; height: 320px; background: #00c3ff; right: -100px; top: 320px; animation-delay: 8s;}
+        .bg-shape3 { width: 260px; height: 260px; background: #e74c3c; left: 60vw; top: -80px; animation-delay: 16s;}
+        @keyframes moveBg {
+            0% { transform: translateY(0) scale(1);}
+            50% { transform: translateY(60px) scale(1.08);}
+            100% { transform: translateY(0) scale(1);}
+        }
+        /* Responsive */
+        @media (max-width: 700px) {
+            header { flex-direction: column; align-items: flex-start; padding: 18px 10px;}
+            .logo { font-size: 1.5rem;}
+            main { padding: 24px 2vw;}
+            .car-card { min-width: 0;}
+        }
+    </style>
+</head>
+<body>
+    <!-- Moving background shapes -->
+    <div class="bg-anim">
+        <div class="bg-shape bg-shape1"></div>
+        <div class="bg-shape bg-shape2"></div>
+        <div class="bg-shape bg-shape3"></div>
+    </div>
+    <header>
+        <div class="logo">Dream Cars</div>
+        <nav>
+            <a href="#">Home</a>
+            <a href="#">Cars</a>
+            <a href="#">Contact</a>
+        </nav>
+        <button class="cart-btn" id="cartBtn">
+            Cart <span class="cart-count" id="cartCount">0</span>
+        </button>
+    </header>
+    <main>
+        <h1>Find Your Dream Car</h1>
+        <div class="cars-grid" id="carsGrid">
+            <!-- Car cards will be injected here -->
+        </div>
+    </main>
+    <!-- Cart Modal -->
+    <div class="modal-bg" id="cartModalBg">
+        <div class="cart-modal">
+            <button class="modal-close" id="closeCartModal">&times;</button>
+            <div class="cart-title">Your Cart</div>
+            <div class="cart-items" id="cartItems"></div>
+            <div class="cart-total" id="cartTotal">Total: $0</div>
+            <button class="checkout-btn" id="checkoutBtn">Checkout</button>
+        </div>
+    </div>
+    <!-- Payment Modal -->
+    <div class="modal-bg" id="paymentModalBg">
+        <div class="payment-modal">
+            <button class="modal-close" id="closePaymentModal">&times;</button>
+            <div class="payment-title">Payment Details</div>
+            <form class="payment-form" id="paymentForm">
+                <label for="name">Full Name</label>
+                <input type="text" id="name" required>
+                <label for="card">Card Number</label>
+                <input type="text" id="card" maxlength="19" required pattern="\d{16,19}">
+                <label for="exp">Expiry Date</label>
+                <input type="text" id="exp" placeholder="MM/YY" maxlength="5" required pattern="\d{2}/\d{2}">
+                <label for="cvv">CVV</label>
+                <input type="password" id="cvv" maxlength="4" required pattern="\d{3,4}">
+                <button type="submit" class="pay-btn">Pay Now</button>
+            </form>
+            <div class="payment-success" id="paymentSuccess" style="display:none;">
+                Payment Successful!<br>Thank you for your purchase.
+            </div>
+        </div>
+    </div>
+    <script>
+        // Car data
+        const cars = [
+            {
+                id: 1,
+                name: "Lamborghini Aventador",
+                desc: "V12, 730hp, 0-60 in 2.9s. The ultimate Italian supercar.",
+                price: 420000,
+                img: "https://images.unsplash.com/photo-1503736334956-4c8f8e92946d?auto=format&fit=crop&w=800&q=80"
+            },
+            {
+                id: 2,
+                name: "Ferrari 488 GTB",
+                desc: "Twin-turbo V8, 661hp, razor-sharp handling and style.",
+                price: 330000,
+                img: "https://images.unsplash.com/photo-1511918984145-48de785d4c4e?auto=format&fit=crop&w=800&q=80"
+            },
+            {
+                id: 3,
+                name: "Porsche 911 Turbo S",
+                desc: "3.8L flat-six, 640hp, all-wheel drive, everyday supercar.",
+                price: 210000,
+                img: "https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=800&q=80"
+            },
+            {
+                id: 4,
+                name: "Tesla Model S Plaid",
+                desc: "Tri-motor, 1020hp, 0-60 in 1.99s, electric luxury.",
+                price: 140000,
+                img: "https://images.unsplash.com/photo-1511391403515-5c1e8e6bc6c2?auto=format&fit=crop&w=800&q=80"
+            },
+            {
+                id: 5,
+                name: "BMW M8 Competition",
+                desc: "4.4L V8, 617hp, luxury meets performance.",
+                price: 135000,
+                img: "https://images.unsplash.com/photo-1462392246754-28dfa2df8e6b?auto=format&fit=crop&w=800&q=80"
+            },
+            {
+                id: 6,
+                name: "Audi R8 V10 Plus",
+                desc: "5.2L V10, 610hp, Quattro all-wheel drive.",
+                price: 195000,
+                img: "https://images.unsplash.com/photo-1502877338535-766e1452684a?auto=format&fit=crop&w=800&q=80"
+            },
+            {
+                id: 7,
+                name: "Mercedes AMG GT R",
+                desc: "4.0L V8, 577hp, track-focused German beast.",
+                price: 162000,
+                img: "https://images.unsplash.com/photo-1465447142348-e9952c393450?auto=format&fit=crop&w=800&q=80"
+            },
+            {
+                id: 8,
+                name: "Chevrolet Corvette C8",
+                desc: "6.2L V8, 495hp, mid-engine American icon.",
+                price: 67000,
+                img: "https://images.unsplash.com/photo-1503736318-1c1b7b8b8b8b?auto=format&fit=crop&w=800&q=80"
+            },
+            {
+                id: 9,
+                name: "Ford Mustang Shelby GT500",
+                desc: "5.2L supercharged V8, 760hp, muscle legend.",
+                price: 74000,
+                img: "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=800&q=80"
+            },
+            {
+                id: 10,
+                name: "Nissan GT-R Nismo",
+                desc: "3.8L twin-turbo V6, 600hp, Godzilla unleashed.",
+                price: 210000,
+                img: "https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=crop&w=800&q=80"
+            }
+        ];
+
+        // Render cars
+        const carsGrid = document.getElementById('carsGrid');
+        cars.forEach(car => {
+            const card = document.createElement('div');
+            card.className = 'car-card';
+            card.innerHTML = `
+                <img class="car-img" src="${car.img}" alt="${car.name}">
+                <div class="car-info">
+                    <div class="car-title">${car.name}</div>
+                    <div class="car-desc">${car.desc}</div>
+                    <div class="car-price">$${car.price.toLocaleString()}</div>
+                    <button class="add-cart-btn" data-id="${car.id}">Add to Cart</button>
+                </div>
+            `;
+            carsGrid.appendChild(card);
+        });
+
+        // Cart logic
+        let cart = [];
+        function updateCartCount() {
+            document.getElementById('cartCount').textContent = cart.reduce((a, c) => a + c.qty, 0);
+        }
+        function updateCartModal() {
+            const cartItemsDiv = document.getElementById('cartItems');
+            cartItemsDiv.innerHTML = '';
+            if (cart.length === 0) {
+                cartItemsDiv.innerHTML = '<div style="color:#aaa;text-align:center;">Your cart is empty.</div>';
+            } else {
+                cart.forEach(item => {
+                    const car = cars.find(c => c.id === item.id);
+                    const div = document.createElement('div');
+                    div.className = 'cart-item';
+                    div.innerHTML = `
+                        <img class="cart-item-img" src="${car.img}" alt="${car.name}">
+                        <div class="cart-item-info">
+                            <div class="cart-item-title">${car.name}</div>
+                            <div class="cart-item-price">$${car.price.toLocaleString()}</div>
+                            <div class="cart-item-qty">
+                                <button class="qty-btn" data-id="${car.id}" data-action="dec">-</button>
+                                <span>${item.qty}</span>
+                                <button class="qty-btn" data-id="${car.id}" data-action="inc">+</button>
+                                <button class="remove-item-btn" data-id="${car.id}" title="Remove">&times;</button>
+                            </div>
+                        </div>
+                    `;
+                    cartItemsDiv.appendChild(div);
+                });
+            }
+            // Update total
+            const total = cart.reduce((sum, item) => {
+                const car = cars.find(c => c.id === item.id);
+                return sum + car.price * item.qty;
+            }, 0);
+            document.getElementById('cartTotal').textContent = `Total: $${total.toLocaleString()}`;
+        }
+        // Add to cart
+        carsGrid.addEventListener('click', e => {
+            if (e.target.classList.contains('add-cart-btn')) {
+                const id = +e.target.getAttribute('data-id');
+                const idx = cart.findIndex(item => item.id === id);
+                if (idx > -1) {
+                    cart[idx].qty++;
+                } else {
+                    cart.push({id, qty: 1});
+                }
+                updateCartCount();
+                updateCartModal();
+            }
+        });
+        // Cart modal open/close
+        const cartModalBg = document.getElementById('cartModalBg');
+        document.getElementById('cartBtn').onclick = () => {
+            cartModalBg.classList.add('active');
+            updateCartModal();
+        };
+        document.getElementById('closeCartModal').onclick = () => {
+            cartModalBg.classList.remove('active');
+        };
+        cartModalBg.onclick = e => {
+            if (e.target === cartModalBg) cartModalBg.classList.remove('active');
+        };
+        // Cart item qty and remove
+        document.getElementById('cartItems').onclick = e => {
+            const id = +e.target.getAttribute('data-id');
+            if (e.target.classList.contains('qty-btn')) {
+                const action = e.target.getAttribute('data-action');
+                const idx = cart.findIndex(item => item.id === id);
+                if (action === 'inc') cart[idx].qty++;
+                else if (action === 'dec' && cart[idx].qty > 1) cart[idx].qty--;
+                updateCartCount();
+                updateCartModal();
+            }
+            if (e.target.classList.contains('remove-item-btn')) {
+                cart = cart.filter(item => item.id !== id);
+                updateCartCount();
+                updateCartModal();
+            }
+        };
+        // Checkout
+        const paymentModalBg = document.getElementById('paymentModalBg');
+        document.getElementById('checkoutBtn').onclick = () => {
+            if (cart.length === 0) return;
+            cartModalBg.classList.remove('active');
+            paymentModalBg.classList.add('active');
+            document.getElementById('paymentForm').reset();
+            document.getElementById('paymentSuccess').style.display = 'none';
+        };
+        document.getElementById('closePaymentModal').onclick = () => {
+            paymentModalBg.classList.remove('active');
+        };
+        paymentModalBg.onclick = e => {
+            if (e.target === paymentModalBg) paymentModalBg.classList.remove('active');
+        };
+        // Payment form
+        document.getElementById('paymentForm').onsubmit = function(e) {
+            e.preventDefault();
+            // Simulate payment
+            setTimeout(() => {
+                document.getElementById('paymentSuccess').style.display = 'block';
+                cart = [];
+                updateCartCount();
+                updateCartModal();
+                setTimeout(() => {
+                    paymentModalBg.classList.remove('active');
+                }, 1800);
+            }, 900);
+        };
+        // Format card input
+        document.getElementById('card').addEventListener('input', function() {
+            this.value = this.value.replace(/\D/g, '').replace(/(.{4})/g, '$1 ').trim();
+        });
+        // Format expiry input
+        document.getElementById('exp').addEventListener('input', function() {
+            this.value = this.value.replace(/[^0-9]/g, '').replace(/(\d{2})(\d{1,2})/, '$1/$2').substr(0,5);
+        });
+        // Initial
+        updateCartCount();
+        updateCartModal();
+    </script>
+</body>
+</html>

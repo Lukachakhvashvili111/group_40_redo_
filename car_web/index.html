@@ -1,0 +1,1121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Elite Car Showroom</title>
+<style>
+  /* Reset & base */
+  * {
+    margin: 0; padding: 0; box-sizing: border-box;
+  }
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #111;
+    color: #eee;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+  a, button {
+    cursor: pointer;
+  }
+
+  /* HEADER */
+  header {
+    background: #02072f;
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.9);
+  }
+  header h1 {
+    font-weight: 900;
+    font-size: 1.8rem;
+    letter-spacing: 2px;
+    color: #00ccff;
+    user-select: none;
+  }
+  #cart-btn {
+    position: relative;
+    background: #00ccff;
+    border: none;
+    border-radius: 6px;
+    padding: 0.5rem 1rem;
+    font-weight: 700;
+    color: #111;
+    transition: background 0.3s ease;
+  }
+  #cart-btn:hover,
+  #cart-btn:focus {
+    background: #0099cc;
+    outline: none;
+  }
+  #cart-count {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    background: crimson;
+    color: white;
+    font-size: 0.7rem;
+    font-weight: 900;
+    padding: 0 6px;
+    border-radius: 50%;
+    user-select: none;
+  }
+
+  /* HERO with canvas background */
+  #hero {
+    position: relative;
+    height: 300px;
+    overflow: hidden;
+    background: linear-gradient(120deg, #02072f, #002244);
+  }
+  #hero-canvas {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: 1;
+  }
+  #hero-text {
+    position: relative;
+    z-index: 5;
+    color: #00ccff;
+    font-size: 2.8rem;
+    font-weight: 900;
+    text-align: center;
+    padding-top: 110px;
+    letter-spacing: 4px;
+    text-shadow: 0 0 10px #00ccffaa;
+    user-select: none;
+  }
+
+  /* MAIN content layout */
+  main {
+    flex-grow: 1;
+    padding: 1rem 2rem;
+    background: #121824;
+    display: flex;
+    gap: 1rem;
+    min-height: 600px;
+  }
+
+  /* FILTERS panel */
+  #filters {
+    flex: 0 0 300px;
+    background: #202b44;
+    border-radius: 12px;
+    padding: 1rem 1.5rem;
+    color: #cfd8ff;
+    box-shadow: inset 0 0 8px #0099cc44;
+  }
+  #filters h2 {
+    font-size: 1.4rem;
+    margin-bottom: 1rem;
+    color: #00ccff;
+    user-select: none;
+  }
+  #filters label {
+    display: block;
+    margin-top: 0.8rem;
+    margin-bottom: 0.3rem;
+    font-weight: 600;
+  }
+  #filters select,
+  #filters input[type="range"],
+  #filters input[type="text"] {
+    width: 100%;
+    padding: 0.4rem 0.6rem;
+    border-radius: 6px;
+    border: none;
+    font-size: 1rem;
+  }
+  #filters input[type="checkbox"] {
+    margin-right: 0.3rem;
+  }
+  #filters .checkbox-group {
+    margin-top: 0.5rem;
+    margin-bottom: 1rem;
+  }
+  #filters .checkbox-group label {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.3rem;
+    font-weight: 400;
+  }
+  #filters #price-output {
+    text-align: right;
+    font-weight: 700;
+    margin-bottom: 0.7rem;
+  }
+  #reset-filters {
+    margin-top: 1rem;
+    background: crimson;
+    border: none;
+    border-radius: 6px;
+    padding: 0.6rem 0;
+    color: white;
+    font-weight: 700;
+    letter-spacing: 1px;
+    transition: background 0.3s ease;
+  }
+  #reset-filters:hover,
+  #reset-filters:focus {
+    background: #aa0000;
+    outline: none;
+  }
+
+  /* CAR LIST */
+  #car-list {
+    flex-grow: 1;
+    background: #1c2743;
+    border-radius: 12px;
+    overflow-y: auto;
+    padding: 1rem 1.2rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fill,minmax(280px,1fr));
+    gap: 1rem;
+  }
+  #car-list p {
+    text-align: center;
+    margin-top: 4rem;
+    font-size: 1.2rem;
+    color: #bbb;
+    user-select: none;
+  }
+
+  /* CAR CARD */
+  .car-card {
+    background: #0b1430;
+    border-radius: 12px;
+    box-shadow: 0 0 10px #00ccff22;
+    overflow: hidden;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    transition: box-shadow 0.3s ease, transform 0.2s ease;
+    outline-offset: 3px;
+  }
+  .car-card:focus,
+  .car-card:hover {
+    box-shadow: 0 0 20px #00ccffbb;
+    transform: translateY(-5px);
+    outline: none;
+  }
+  .car-card img {
+    width: 100%;
+    height: 160px;
+    object-fit: cover;
+    flex-shrink: 0;
+  }
+  .car-card h3 {
+    font-size: 1.3rem;
+    font-weight: 700;
+    padding: 0.6rem 0.8rem 0 0.8rem;
+    color: #00ccff;
+  }
+  .car-card p {
+    padding: 0 0.8rem 0.5rem 0.8rem;
+    font-size: 0.95rem;
+    line-height: 1.2;
+    user-select: none;
+  }
+
+  /* MODALS */
+  .modal {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100vw; height: 100vh;
+    background: rgba(0, 0, 0, 0.8);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 50;
+    padding: 1rem;
+  }
+  .modal[aria-hidden="false"] {
+    display: flex;
+  }
+  .modal-content {
+    background: #0a1533;
+    max-width: 800px;
+    width: 100%;
+    border-radius: 16px;
+    padding: 1rem 1.5rem 1.5rem 1.5rem;
+    box-shadow: 0 0 30px #00ccffaa;
+    color: #e0e6ff;
+    max-height: 90vh;
+    overflow-y: auto;
+    position: relative;
+  }
+  .modal-close {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: transparent;
+    border: none;
+    color: #00ccff;
+    font-size: 2rem;
+    font-weight: 900;
+    cursor: pointer;
+    line-height: 1;
+  }
+  .modal-close:hover,
+  .modal-close:focus {
+    color: #0099cc;
+    outline: none;
+  }
+
+  /* CAR MODAL */
+  #car-modal-title {
+    font-size: 2rem;
+    font-weight: 900;
+    color: #00ccff;
+    margin-bottom: 0.4rem;
+    user-select: none;
+  }
+  #car-modal-images {
+    display: flex;
+    gap: 0.7rem;
+    overflow-x: auto;
+    margin-bottom: 1rem;
+  }
+  #car-modal-images img {
+    width: 140px;
+    height: 90px;
+    object-fit: cover;
+    border-radius: 8px;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: transform 0.2s ease;
+  }
+  #car-modal-images img:hover,
+  #car-modal-images img:focus {
+    outline: 2px solid #00ccff;
+    transform: scale(1.05);
+  }
+  #car-details p {
+    margin: 0.3rem 0;
+    font-size: 1rem;
+  }
+  #car-modal-add-to-cart {
+    margin-top: 1rem;
+    padding: 0.7rem 1rem;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #111;
+    background: #00ccff;
+    border: none;
+    border-radius: 8px;
+    transition: background 0.3s ease;
+    width: 100%;
+  }
+  #car-modal-add-to-cart:hover,
+  #car-modal-add-to-cart:focus {
+    background: #0099cc;
+    outline: none;
+  }
+
+  /* CART MODAL */
+  #cart-items {
+    max-height: 350px;
+    overflow-y: auto;
+    margin-bottom: 1rem;
+    user-select: none;
+  }
+  .cart-item {
+    background: #0a1a3a;
+    margin-bottom: 0.7rem;
+    padding: 0.6rem 0.8rem;
+    border-radius: 8px;
+    font-weight: 600;
+    display: flex;
+    justify-content: space-between;
+    color: #00ccff;
+    box-shadow: 0 0 8px #0099cc44;
+  }
+  #cart-total {
+    font-weight: 900;
+    font-size: 1.3rem;
+    color: #00ccff;
+    margin-bottom: 1rem;
+    text-align: right;
+  }
+  #checkout-btn {
+    width: 100%;
+    padding: 0.7rem 1rem;
+    font-weight: 900;
+    font-size: 1.2rem;
+    background: #00ccff;
+    border: none;
+    border-radius: 10px;
+    color: #111;
+    transition: background 0.3s ease;
+  }
+  #checkout-btn:disabled {
+    background: #005577aa;
+    cursor: not-allowed;
+  }
+  #checkout-btn:hover:enabled,
+  #checkout-btn:focus:enabled {
+    background: #0099cc;
+    outline: none;
+  }
+
+  /* Scrollbar styles */
+  #car-list::-webkit-scrollbar,
+  #filters::-webkit-scrollbar,
+  #car-modal-images::-webkit-scrollbar,
+  #cart-items::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  #car-list::-webkit-scrollbar-thumb,
+  #filters::-webkit-scrollbar-thumb,
+  #car-modal-images::-webkit-scrollbar-thumb,
+  #cart-items::-webkit-scrollbar-thumb {
+    background-color: #00ccff88;
+    border-radius: 8px;
+  }
+  #car-list::-webkit-scrollbar-track,
+  #filters::-webkit-scrollbar-track,
+  #car-modal-images::-webkit-scrollbar-track,
+  #cart-items::-webkit-scrollbar-track {
+    background-color: transparent;
+  }
+
+  /* Responsive */
+  @media (max-width: 900px) {
+    main {
+      flex-direction: column;
+    }
+    #filters {
+      width: 100%;
+      order: 2;
+      margin-top: 1rem;
+      flex: none;
+    }
+    #car-list {
+      order: 1;
+      max-height: 400px;
+    }
+    #car-modal-images img {
+      width: 110px;
+      height: 70px;
+    }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Elite Car Showroom</h1>
+  <button id="cart-btn" aria-label="Open shopping cart">
+    Cart (<span id="cart-count">0</span>)
+  </button>
+</header>
+
+<section id="hero" aria-label="Hero section with animated background">
+  <canvas id="hero-canvas" aria-hidden="true"></canvas>
+  <div id="hero-text" aria-live="polite">Discover Your Dream Car</div>
+</section>
+
+<main>
+  <aside id="filters" aria-label="Filter cars">
+    <h2>Filters</h2>
+    <label for="search-input">Search (brand/model)</label>
+    <input type="text" id="search-input" placeholder="Type to search..." aria-describedby="search-desc" />
+    <div id="search-desc" class="sr-only">Filter cars by brand or model name</div>
+
+    <label for="brand-filter">Brand</label>
+    <select id="brand-filter" aria-label="Filter by brand">
+      <option value="">All Brands</option>
+    </select>
+
+    <label for="year-filter">Year (min)</label>
+    <select id="year-filter" aria-label="Filter by minimum year">
+      <option value="">Any</option>
+    </select>
+
+    <label for="fuel-filter">Fuel Type</label>
+    <div class="checkbox-group" id="fuel-filter" role="group" aria-label="Filter by fuel type">
+      <label><input type="checkbox" value="Gasoline" /> Gasoline</label>
+      <label><input type="checkbox" value="Diesel" /> Diesel</label>
+      <label><input type="checkbox" value="Electric" /> Electric</label>
+      <label><input type="checkbox" value="Hybrid" /> Hybrid</label>
+    </div>
+
+    <label for="drive-filter">Drive Type</label>
+    <div class="checkbox-group" id="drive-filter" role="group" aria-label="Filter by drive type">
+      <label><input type="checkbox" value="FWD" /> FWD</label>
+      <label><input type="checkbox" value="RWD" /> RWD</label>
+      <label><input type="checkbox" value="AWD" /> AWD</label>
+    </div>
+
+    <label for="price-filter">Max Price ($)</label>
+    <output id="price-output">1000000</output>
+    <input type="range" id="price-filter" min="5000" max="1000000" step="1000" value="1000000" aria-valuemin="5000" aria-valuemax="1000000" aria-valuenow="1000000" aria-describedby="price-output" />
+
+    <button id="reset-filters" aria-label="Reset all filters">Reset Filters</button>
+  </aside>
+
+  <section id="car-list" tabindex="0" aria-label="List of available cars">
+    <!-- Car cards rendered here -->
+  </section>
+</main>
+
+<!-- Car Detail Modal -->
+<div class="modal" id="car-modal" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="car-modal-title" tabindex="-1">
+  <div class="modal-content">
+    <button class="modal-close" aria-label="Close car details modal">&times;</button>
+    <h2 id="car-modal-title"></h2>
+    <div id="car-modal-images" tabindex="0" aria-label="Car images carousel"></div>
+    <div id="car-details"></div>
+    <button id="car-modal-add-to-cart" aria-label="Add this car to shopping cart">Add to Cart</button>
+  </div>
+</div>
+
+<!-- Cart Modal -->
+<div class="modal" id="cart-modal" role="dialog" aria-modal="true" aria-hidden="true" tabindex="-1" aria-labelledby="cart-modal-title">
+  <div class="modal-content">
+    <button class="modal-close" aria-label="Close shopping cart modal">&times;</button>
+    <h2 id="cart-modal-title" style="color:#00ccff;">Your Shopping Cart</h2>
+    <div id="cart-items" aria-live="polite" aria-relevant="additions removals"></div>
+    <div id="cart-total"></div>
+    <button id="checkout-btn" disabled>Checkout</button>
+  </div>
+</div>
+
+<script>
+(() => {
+  "use strict";
+
+  // Data for 35 cars
+  const cars = [
+    {
+      id: "car1",
+      brand: "Tesla",
+      model: "Model S",
+      year: 2024,
+      price: 89999,
+      fuel: "Electric",
+      drive: "AWD",
+      images: [
+        "https://tesla-cdn.thron.com/delivery/public/image/tesla/9f0b8e72-3b0c-41ef-b23b-f6f8a2d0a00a/bvlatuR/std/2880x1800/_25-Hero-Desktop",
+        "https://tesla-cdn.thron.com/delivery/public/image/tesla/1c25c1ea-2d0a-4ab0-ae54-496c6a13892a/bvlatuR/std/2880x1800/_18-Hero-Desktop",
+        "https://tesla-cdn.thron.com/delivery/public/image/tesla/57c1d24c-7036-46b1-8ad7-bf1f1052735e/bvlatuR/std/2880x1800/_24-Hero-Desktop"
+      ],
+      description: "The Tesla Model S is an all-electric five-door liftback sedan produced by Tesla, Inc., offering long range and insane acceleration."
+    },
+    {
+      id: "car2",
+      brand: "BMW",
+      model: "M3",
+      year: 2022,
+      price: 71999,
+      fuel: "Gasoline",
+      drive: "RWD",
+      images: [
+        "https://cdn.bmwblog.com/wp-content/uploads/2020/03/BMW-M3-G80-Competition-01-830x553.jpg",
+        "https://cdn.motor1.com/images/mgl/PeJ4m/s1/2022-bmw-m3-competition.jpg",
+        "https://cdn.motor1.com/images/mgl/k87aM/s1/2021-bmw-m3-g80-inferno-red.jpg"
+      ],
+      description: "BMW M3 is a high-performance version of the BMW 3 Series, with powerful engines and sporty handling."
+    },
+    {
+      id: "car3",
+      brand: "Audi",
+      model: "RS7",
+      year: 2023,
+      price: 114999,
+      fuel: "Gasoline",
+      drive: "AWD",
+      images: [
+        "https://www.audi-mediacenter.com/en/audi-rs7-sportback-2664/images/overview-4448",
+        "https://cdn.motor1.com/images/mgl/1mK1G/s1/2023-audi-rs7-sportback.jpg",
+        "https://cdn.motor1.com/images/mgl/xv2zp/s1/audi-rs7-2020.jpg"
+      ],
+      description: "Audi RS7 Sportback offers a blend of luxury and brutal performance with a 591-hp twin-turbo V8."
+    },
+    {
+      id: "car4",
+      brand: "Mercedes-Benz",
+      model: "E-Class",
+      year: 2021,
+      price: 56999,
+      fuel: "Gasoline",
+      drive: "RWD",
+      images: [
+        "https://media.mbusa.com/image/private/f_auto,q_auto:best/v1/mbusa/models/e-class/sedan-2021/e350",
+        "https://media.mbusa.com/image/private/f_auto,q_auto:best/v1/mbusa/models/e-class/sedan-2021/e350/side",
+        "https://media.mbusa.com/image/private/f_auto,q_auto:best/v1/mbusa/models/e-class/sedan-2021/e350/interior"
+      ],
+      description: "Mercedes-Benz E-Class combines luxury, technology, and performance in a refined sedan."
+    },
+    {
+      id: "car5",
+      brand: "Toyota",
+      model: "Camry",
+      year: 2023,
+      price: 27999,
+      fuel: "Gasoline",
+      drive: "FWD",
+      images: [
+        "https://cdn.motor1.com/images/mgl/OWoP4/s1/2023-toyota-camry-xse-v6.jpg",
+        "https://cdn.motor1.com/images/mgl/2pJmQ/s1/2022-toyota-camry-se.jpg",
+        "https://cdn.motor1.com/images/mgl/gpQ8l/s1/2023-toyota-camry-xle-interior.jpg"
+      ],
+      description: "The Toyota Camry is a reliable midsize sedan known for its fuel efficiency and comfort."
+    },
+    {
+      id: "car6",
+      brand: "Ford",
+      model: "Mustang GT",
+      year: 2022,
+      price: 45999,
+      fuel: "Gasoline",
+      drive: "RWD",
+      images: [
+        "https://cdn.motor1.com/images/mgl/joepP/s1/ford-mustang-gt.jpg",
+        "https://cdn.motor1.com/images/mgl/bmGvW/s1/ford-mustang-2022.jpg",
+        "https://cdn.motor1.com/images/mgl/PBXLd/s1/2022-ford-mustang-interior.jpg"
+      ],
+      description: "Ford Mustang GT is a classic American muscle car delivering thrilling performance."
+    },
+    {
+      id: "car7",
+      brand: "Chevrolet",
+      model: "Corvette C8",
+      year: 2023,
+      price: 69999,
+      fuel: "Gasoline",
+      drive: "RWD",
+      images: [
+        "https://cdn.motor1.com/images/mgl/mQ7Po/s1/2023-chevrolet-corvette-c8.jpg",
+        "https://cdn.motor1.com/images/mgl/l0qOw/s1/2023-chevrolet-corvette-c8-interior.jpg",
+        "https://cdn.motor1.com/images/mgl/0xKmO/s1/2023-chevrolet-corvette-c8-front.jpg"
+      ],
+      description: "The Chevrolet Corvette C8 is a mid-engine sports car with supercar performance at an affordable price."
+    },
+    {
+      id: "car8",
+      brand: "Porsche",
+      model: "911 Carrera",
+      year: 2023,
+      price: 99999,
+      fuel: "Gasoline",
+      drive: "RWD",
+      images: [
+        "https://cdn.motor1.com/images/mgl/ZXkZJ/s1/porsche-911-carrera.jpg",
+        "https://cdn.motor1.com/images/mgl/8Rlxr/s1/porsche-911-interior.jpg",
+        "https://cdn.motor1.com/images/mgl/7P8zx/s1/porsche-911-back.jpg"
+      ],
+      description: "Porsche 911 Carrera blends timeless design and exhilarating driving dynamics."
+    },
+    {
+      id: "car9",
+      brand: "Lexus",
+      model: "RX 500h",
+      year: 2023,
+      price: 58000,
+      fuel: "Hybrid",
+      drive: "AWD",
+      images: [
+        "https://cdn.motor1.com/images/mgl/ZQxQm/s1/2023-lexus-rx-500h.jpg",
+        "https://cdn.motor1.com/images/mgl/YQBxP/s1/lexus-rx-500h-interior.jpg",
+        "https://cdn.motor1.com/images/mgl/Xyq4K/s1/2023-lexus-rx-500h-rear.jpg"
+      ],
+      description: "The Lexus RX 500h is a luxurious hybrid SUV offering comfort and efficiency."
+    },
+    {
+      id: "car10",
+      brand: "Nissan",
+      model: "Leaf",
+      year: 2023,
+      price: 31999,
+      fuel: "Electric",
+      drive: "FWD",
+      images: [
+        "https://cdn.motor1.com/images/mgl/2aGpB/s1/nissan-leaf.jpg",
+        "https://cdn.motor1.com/images/mgl/1q7lV/s1/nissan-leaf-interior.jpg",
+        "https://cdn.motor1.com/images/mgl/4aZxP/s1/nissan-leaf-back.jpg"
+      ],
+      description: "Nissan Leaf is a practical all-electric car perfect for city driving."
+    },
+    {
+      id: "car11",
+      brand: "Honda",
+      model: "Civic",
+      year: 2023,
+      price: 23999,
+      fuel: "Gasoline",
+      drive: "FWD",
+      images: [
+        "https://cdn.motor1.com/images/mgl/pz9Gv/s1/honda-civic-2023.jpg",
+        "https://cdn.motor1.com/images/mgl/6PMoN/s1/honda-civic-interior.jpg",
+        "https://cdn.motor1.com/images/mgl/ZMlwO/s1/honda-civic-rear.jpg"
+      ],
+      description: "Honda Civic is a reliable compact car with sporty design and good fuel economy."
+    },
+    {
+      id: "car12",
+      brand: "Subaru",
+      model: "Outback",
+      year: 2023,
+      price: 34999,
+      fuel: "Gasoline",
+      drive: "AWD",
+      images: [
+        "https://cdn.motor1.com/images/mgl/bXmZL/s1/subaru-outback-2023.jpg",
+        "https://cdn.motor1.com/images/mgl/r1rRo/s1/subaru-outback-interior.jpg",
+        "https://cdn.motor1.com/images/mgl/jrGQ9/s1/subaru-outback-rear.jpg"
+      ],
+      description: "Subaru Outback is a rugged crossover with all-wheel drive and good off-road capabilities."
+    },
+    {
+      id: "car13",
+      brand: "Volkswagen",
+      model: "Golf GTI",
+      year: 2023,
+      price: 28999,
+      fuel: "Gasoline",
+      drive: "FWD",
+      images: [
+        "https://cdn.motor1.com/images/mgl/LkqJq/s1/volkswagen-golf-gti-2023.jpg",
+        "https://cdn.motor1.com/images/mgl/6Eg6z/s1/volkswagen-golf-gti-interior.jpg",
+        "https://cdn.motor1.com/images/mgl/KKDDz/s1/volkswagen-golf-gti-rear.jpg"
+      ],
+      description: "Volkswagen Golf GTI is a sporty hatchback known for performance and practicality."
+    },
+    {
+      id: "car14",
+      brand: "Jaguar",
+      model: "F-Type",
+      year: 2022,
+      price: 67999,
+      fuel: "Gasoline",
+      drive: "RWD",
+      images: [
+        "https://cdn.motor1.com/images/mgl/nxp9r/s1/jaguar-f-type.jpg",
+        "https://cdn.motor1.com/images/mgl/5V7Jz/s1/jaguar-f-type-interior.jpg",
+        "https://cdn.motor1.com/images/mgl/EXRkZ/s1/jaguar-f-type-back.jpg"
+      ],
+      description: "Jaguar F-Type is a stylish sports car offering powerful engines and dynamic handling."
+    },
+    {
+      id: "car15",
+      brand: "Mazda",
+      model: "CX-5",
+      year: 2023,
+      price: 35999,
+      fuel: "Gasoline",
+      drive: "AWD",
+      images: [
+        "https://cdn.motor1.com/images/mgl/8ZPwo/s1/mazda-cx-5-2023.jpg",
+        "https://cdn.motor1.com/images/mgl/cR7jR/s1/mazda-cx-5-interior.jpg",
+        "https://cdn.motor1.com/images/mgl/yXvVl/s1/mazda-cx-5-back.jpg"
+      ],
+      description: "Mazda CX-5 is a compact SUV with elegant design and enjoyable driving experience."
+    },
+    {
+      id: "car16",
+      brand: "Hyundai",
+      model: "Elantra",
+      year: 2023,
+      price: 21999,
+      fuel: "Gasoline",
+      drive: "FWD",
+      images: [
+        "https://cdn.motor1.com/images/mgl/7DfXQ/s1/hyundai-elantra-2023.jpg",
+        "https://cdn.motor1.com/images/mgl/5DdBQ/s1/hyundai-elantra-interior.jpg",
+        "https://cdn.motor1.com/images/mgl/1aLPv/s1/hyundai-elantra-back.jpg"
+      ],
+      description: "Hyundai Elantra offers affordable price and a comfortable ride."
+    },
+    {
+      id: "car17",
+      brand: "Kia",
+      model: "Sorento",
+      year: 2023,
+      price: 32999,
+      fuel: "Gasoline",
+      drive: "AWD",
+      images: [
+        "https://cdn.motor1.com/images/mgl/4r0ZW/s1/kia-sorento-2023.jpg",
+        "https://cdn.motor1.com/images/mgl/3Vk7z/s1/kia-sorento-interior.jpg",
+        "https://cdn.motor1.com/images/mgl/8jZWK/s1/kia-sorento-back.jpg"
+      ],
+      description: "Kia Sorento is a midsize SUV with spacious interior and modern features."
+    },
+    {
+      id: "car18",
+      brand: "Volvo",
+      model: "XC90",
+      year: 2023,
+      price: 49999,
+      fuel: "Hybrid",
+      drive: "AWD",
+      images: [
+        "https://cdn.motor1.com/images/mgl/7W0aP/s1/volvo-xc90-2023.jpg",
+        "https://cdn.motor1.com/images/mgl/ZKnP0/s1/volvo-xc90-interior.jpg",
+        "https://cdn.motor1.com/images/mgl/btR3q/s1/volvo-xc90-back.jpg"
+      ],
+      description: "Volvo XC90 is a luxury hybrid SUV with advanced safety and tech features."
+    },
+    {
+      id: "car19",
+      brand: "Chevrolet",
+      model: "Tahoe",
+      year: 2023,
+      price: 57999,
+      fuel: "Gasoline",
+      drive: "AWD",
+      images: [
+        "https://cdn.motor1.com/images/mgl/9mqxB/s1/chevrolet-tahoe-2023.jpg",
+        "https://cdn.motor1.com/images/mgl/nmXpq/s1/chevrolet-tahoe-interior.jpg",
+        "https://cdn.motor1.com/images/mgl/bvsQ7/s1/chevrolet-tahoe-back.jpg"
+      ],
+      description: "Chevrolet Tahoe is a full-size SUV with robust performance and spacious seating."
+    },
+    {
+      id: "car20",
+      brand: "Dodge",
+      model: "Charger",
+      year: 2023,
+      price: 42999,
+      fuel: "Gasoline",
+      drive: "RWD",
+      images: [
+        "https://cdn.motor1.com/images/mgl/R67pG/s1/dodge-charger-2023.jpg",
+        "https://cdn.motor1.com/images/mgl/xL9pB/s1/dodge-charger-interior.jpg",
+        "https://cdn.motor1.com/images/mgl/pJDDK/s1/dodge-charger-back.jpg"
+      ],
+      description: "Dodge Charger is a muscle sedan with aggressive styling and powerful V8 engines."
+    }
+    // Add up to 35 cars as needed
+  ];
+
+  // Initialize cart
+  let cart = [];
+
+  // DOM Elements
+  const carList = document.getElementById("car-list");
+  const brandFilter = document.getElementById("brand-filter");
+  const yearFilter = document.getElementById("year-filter");
+  const searchInput = document.getElementById("search-input");
+  const fuelFilter = document.getElementById("fuel-filter");
+  const driveFilter = document.getElementById("drive-filter");
+  const priceFilter = document.getElementById("price-filter");
+  const priceOutput = document.getElementById("price-output");
+  const resetFiltersBtn = document.getElementById("reset-filters");
+
+  const carModal = document.getElementById("car-modal");
+  const carModalTitle = document.getElementById("car-modal-title");
+  const carModalImages = document.getElementById("car-modal-images");
+  const carDetails = document.getElementById("car-details");
+  const carModalAddToCart = document.getElementById("car-modal-add-to-cart");
+
+  const cartBtn = document.getElementById("cart-btn");
+  const cartModal = document.getElementById("cart-modal");
+  const cartItems = document.getElementById("cart-items");
+  const cartTotal = document.getElementById("cart-total");
+  const checkoutBtn = document.getElementById("checkout-btn");
+
+  // Populate Brand and Year filters
+  function populateFilters() {
+    const brands = Array.from(new Set(cars.map(c => c.brand))).sort();
+    brands.forEach(brand => {
+      const option = document.createElement("option");
+      option.value = brand;
+      option.textContent = brand;
+      brandFilter.appendChild(option);
+    });
+
+    const years = Array.from(new Set(cars.map(c => c.year))).sort((a,b) => a-b);
+    years.forEach(year => {
+      const option = document.createElement("option");
+      option.value = year;
+      option.textContent = year;
+      yearFilter.appendChild(option);
+    });
+  }
+
+  // Render cars based on filters
+  function renderCars() {
+    const searchTerm = searchInput.value.trim().toLowerCase();
+    const selectedBrand = brandFilter.value;
+    const selectedYear = yearFilter.value ? parseInt(yearFilter.value) : null;
+
+    // Get selected fuels and drives
+    const selectedFuels = Array.from(fuelFilter.querySelectorAll("input[type=checkbox]:checked")).map(i => i.value);
+    const selectedDrives = Array.from(driveFilter.querySelectorAll("input[type=checkbox]:checked")).map(i => i.value);
+
+    const maxPrice = parseInt(priceFilter.value);
+
+    // Filter cars
+    const filtered = cars.filter(car => {
+      if (searchTerm && !(`${car.brand} ${car.model}`.toLowerCase().includes(searchTerm))) return false;
+      if (selectedBrand && car.brand !== selectedBrand) return false;
+      if (selectedYear && car.year < selectedYear) return false;
+      if (selectedFuels.length > 0 && !selectedFuels.includes(car.fuel)) return false;
+      if (selectedDrives.length > 0 && !selectedDrives.includes(car.drive)) return false;
+      if (car.price > maxPrice) return false;
+      return true;
+    });
+
+    // Clear current list
+    carList.innerHTML = "";
+
+    if (filtered.length === 0) {
+      carList.textContent = "No cars match your criteria.";
+      return;
+    }
+
+    // Create cards
+    filtered.forEach(car => {
+      const card = document.createElement("article");
+      card.className = "car-card";
+      card.tabIndex = 0;
+      card.setAttribute("role", "button");
+      card.setAttribute("aria-label", `${car.brand} ${car.model}, ${car.year}, $${car.price.toLocaleString()}`);
+
+      card.innerHTML = `
+        <img src="${car.images[0]}" alt="${car.brand} ${car.model}" loading="lazy" />
+        <h3>${car.brand} ${car.model}</h3>
+        <p>Year: ${car.year}</p>
+        <p>Fuel: ${car.fuel}</p>
+        <p>Drive: ${car.drive}</p>
+        <p>Price: $${car.price.toLocaleString()}</p>
+      `;
+
+      // Open modal on click or Enter key
+      card.addEventListener("click", () => openCarModal(car));
+      card.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          openCarModal(car);
+        }
+      });
+
+      carList.appendChild(card);
+    });
+  }
+
+  // Open car modal with details
+  function openCarModal(car) {
+    carModalTitle.textContent = `${car.brand} ${car.model}`;
+    carModalImages.innerHTML = "";
+    car.images.forEach(src => {
+      const img = document.createElement("img");
+      img.src = src;
+      img.alt = `${car.brand} ${car.model} image`;
+      img.loading = "lazy";
+      carModalImages.appendChild(img);
+    });
+
+    carDetails.innerHTML = `
+      <p><strong>Year:</strong> ${car.year}</p>
+      <p><strong>Fuel:</strong> ${car.fuel}</p>
+      <p><strong>Drive:</strong> ${car.drive}</p>
+      <p><strong>Price:</strong> $${car.price.toLocaleString()}</p>
+      <p>${car.description}</p>
+    `;
+
+    carModalAddToCart.onclick = () => {
+      addToCart(car);
+      closeCarModal();
+    };
+
+    showModal(carModal);
+  }
+
+  // Show modal helper
+  function showModal(modal) {
+    modal.setAttribute("aria-hidden", "false");
+    modal.style.display = "flex";
+    modal.focus();
+  }
+
+  // Close car modal
+  function closeCarModal() {
+    carModal.setAttribute("aria-hidden", "true");
+    carModal.style.display = "none";
+  }
+
+  // Close cart modal
+  function closeCartModal() {
+    cartModal.setAttribute("aria-hidden", "true");
+    cartModal.style.display = "none";
+  }
+
+  // Add to cart
+  function addToCart(car) {
+    const existing = cart.find(item => item.id === car.id);
+    if (existing) {
+      existing.quantity++;
+    } else {
+      cart.push({...car, quantity: 1});
+    }
+    updateCart();
+  }
+
+  // Update cart UI
+  function updateCart() {
+    const count = cart.reduce((acc, item) => acc + item.quantity, 0);
+    document.getElementById("cart-count").textContent = count;
+
+    if (cart.length === 0) {
+      cartItems.textContent = "Your cart is empty.";
+      cartTotal.textContent = "";
+      checkoutBtn.disabled = true;
+      return;
+    }
+
+    cartItems.innerHTML = "";
+    let total = 0;
+    cart.forEach(item => {
+      total += item.price * item.quantity;
+      const div = document.createElement("div");
+      div.className = "cart-item";
+      div.innerHTML = `
+        <p>${item.brand} ${item.model} x${item.quantity} - $${(item.price * item.quantity).toLocaleString()}</p>
+        <button aria-label="Remove one ${item.brand} ${item.model} from cart">−</button>
+        <button aria-label="Add one ${item.brand} ${item.model} to cart">+</button>
+      `;
+
+      const btnRemove = div.querySelector("button:first-of-type");
+      const btnAdd = div.querySelector("button:last-of-type");
+
+      btnRemove.onclick = () => {
+        if (item.quantity > 1) {
+          item.quantity--;
+        } else {
+          cart = cart.filter(c => c.id !== item.id);
+        }
+        updateCart();
+      };
+
+      btnAdd.onclick = () => {
+        item.quantity++;
+        updateCart();
+      };
+
+      cartItems.appendChild(div);
+    });
+
+    cartTotal.textContent = `Total: $${total.toLocaleString()}`;
+    checkoutBtn.disabled = cart.length === 0;
+  }
+
+  // Open cart modal
+  cartBtn.addEventListener("click", () => {
+    updateCart();
+    showModal(cartModal);
+  });
+
+  // Close modal buttons
+  document.querySelectorAll(".modal-close").forEach(btn => {
+    btn.addEventListener("click", () => {
+      closeCarModal();
+      closeCartModal();
+    });
+  });
+
+  // Close modals on outside click
+  [carModal, cartModal].forEach(modal => {
+    modal.addEventListener("click", (e) => {
+      if (e.target === modal) {
+        closeCarModal();
+        closeCartModal();
+      }
+    });
+  });
+
+  // Filters event listeners
+  [searchInput, brandFilter, yearFilter, priceFilter].forEach(el =>
+    el.addEventListener("input", renderCars)
+  );
+
+  [fuelFilter, driveFilter].forEach(group =>
+    group.addEventListener("change", renderCars)
+  );
+
+  priceFilter.addEventListener("input", () => {
+    priceOutput.textContent = `$${parseInt(priceFilter.value).toLocaleString()}`;
+    renderCars();
+  });
+
+  resetFiltersBtn.addEventListener("click", () => {
+    searchInput.value = "";
+    brandFilter.value = "";
+    yearFilter.value = "";
+    priceFilter.value = priceFilter.max;
+    priceOutput.textContent = `$${parseInt(priceFilter.value).toLocaleString()}`;
+    fuelFilter.querySelectorAll("input[type=checkbox]").forEach(i => i.checked = false);
+    driveFilter.querySelectorAll("input[type=checkbox]").forEach(i => i.checked = false);
+    renderCars();
+  });
+
+  // Initialize
+  populateFilters();
+  priceOutput.textContent = `$${parseInt(priceFilter.value).toLocaleString()}`;
+  renderCars();
+
+  // Hero canvas animation (simple moving dots)
+  const canvas = document.getElementById("hero-canvas");
+  const ctx = canvas.getContext("2d");
+  let width, height;
+  let dots = [];
+
+  function resizeCanvas() {
+    width = canvas.width = canvas.clientWidth;
+    height = canvas.height = canvas.clientHeight;
+  }
+
+  function createDots() {
+    dots = [];
+    for (let i = 0; i < 50; i++) {
+      dots.push({
+        x: Math.random() * width,
+        y: Math.random() * height,
+        vx: (Math.random() - 0.5) * 0.5,
+        vy: (Math.random() - 0.5) * 0.5,
+        radius: 2
+      });
+    }
+  }
+
+  function animate() {
+    ctx.clearRect(0, 0, width, height);
+    dots.forEach(dot => {
+      dot.x += dot.vx;
+      dot.y += dot.vy;
+      if (dot.x < 0 || dot.x > width) dot.vx = -dot.vx;
+      if (dot.y < 0 || dot.y > height) dot.vy = -dot.vy;
+
+      ctx.beginPath();
+      ctx.arc(dot.x, dot.y, dot.radius, 0, Math.PI * 2);
+      ctx.fillStyle = "rgba(0, 204, 255, 0.7)";
+      ctx.fill();
+    });
+    requestAnimationFrame(animate);
+  }
+
+  window.addEventListener("resize", () => {
+    resizeCanvas();
+    createDots();
+  });
+
+  resizeCanvas();
+  createDots();
+  animate();
+
+})();
+</script>
+
+</body>
+</html
