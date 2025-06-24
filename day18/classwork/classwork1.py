@@ -5,5 +5,3 @@ def strangle(list1,list2):
         if type(i) == str:
             list2.append(i)
     return list2
-
-print(strangle(list1,list2))
